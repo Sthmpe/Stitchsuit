@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
@@ -10,6 +9,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginPasswordChanged>(_onPasswordChanged);
     on<LoginSubmitted>(_onSubmitted);
     on<LoginReset>(_onReset);
+    on<LoginPasswordVisibilityToggled>(_onPasswordVisibilityToggled);
   }
 
   void _onEmailChanged(LoginEmailChanged event, Emitter<LoginState> emit) {
@@ -100,6 +100,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onReset(LoginReset event, Emitter<LoginState> emit) {
     emit(const LoginFormState());
+  }
+
+  void _onPasswordVisibilityToggled(
+    LoginPasswordVisibilityToggled event,
+    Emitter<LoginState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is LoginFormState) {
+      emit(
+        currentState.copyWith(obscurePassword: !currentState.obscurePassword),
+      );
+    }
   }
 
   String? _validateEmail(String email) {

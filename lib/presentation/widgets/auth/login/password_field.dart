@@ -7,26 +7,29 @@ import '../../../../logic/blocs/login/login_bloc.dart';
 import '../../../../logic/blocs/login/login_event.dart';
 import '../../../../logic/blocs/login/login_state.dart';
 
-class PasswordField extends StatefulWidget {
+class PasswordField extends StatelessWidget {
   const PasswordField({super.key});
-
-  @override
-  State<PasswordField> createState() => _PasswordFieldState();
-}
-
-class _PasswordFieldState extends State<PasswordField> {
-  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) {
+        if (previous is LoginFormState && current is LoginFormState) {
+          return previous.password != current.password ||
+              previous.passwordError != current.passwordError ||
+              previous.obscurePassword != current.obscurePassword;
+        }
+        return previous.runtimeType != current.runtimeType;
+      },
       builder: (context, state) {
         String password = '';
         String? passwordError;
-        
+        bool obscure = true;
+
         if (state is LoginFormState) {
           password = state.password;
           passwordError = state.passwordError;
+          obscure = state.obscurePassword;
         }
 
         return Column(
@@ -59,7 +62,7 @@ class _PasswordFieldState extends State<PasswordField> {
                 onChanged: (value) {
                   context.read<LoginBloc>().add(LoginPasswordChanged(value));
                 },
-                obscureText: _obscurePassword,
+                obscureText: obscure,
                 style: GoogleFonts.nunitoSans(
                   fontSize: 16.sp,
                   color: const Color(0xFF1A1A1A),
@@ -77,14 +80,14 @@ class _PasswordFieldState extends State<PasswordField> {
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      obscure ? Icons.visibility_off : Icons.visibility,
                       color: const Color(0xFF9CA3AF),
                       size: 20.sp,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+                      context.read<LoginBloc>().add(
+                        const LoginPasswordVisibilityToggled(),
+                      );
                     },
                   ),
                   border: InputBorder.none,
@@ -112,5 +115,3 @@ class _PasswordFieldState extends State<PasswordField> {
     );
   }
 }
-
-

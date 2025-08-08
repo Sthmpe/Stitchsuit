@@ -13,10 +13,17 @@ class EmailField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) {
+        if (previous is LoginFormState && current is LoginFormState) {
+          return previous.email != current.email ||
+              previous.emailError != current.emailError;
+        }
+        return previous.runtimeType != current.runtimeType;
+      },
       builder: (context, state) {
         String email = '';
         String? emailError;
-        
+
         if (state is LoginFormState) {
           email = state.email;
           emailError = state.emailError;
