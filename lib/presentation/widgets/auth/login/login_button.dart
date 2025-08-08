@@ -13,6 +13,12 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
+      buildWhen: (previous, current) {
+        if (previous is LoginFormState && current is LoginFormState) {
+          return previous.isFormValid != current.isFormValid;
+        }
+        return previous.runtimeType != current.runtimeType;
+      },
       builder: (context, state) {
         final isLoading = state is LoginLoading;
         final isFormValid = state is LoginFormState && state.isFormValid;

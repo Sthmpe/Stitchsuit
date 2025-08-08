@@ -34,6 +34,7 @@ class LoginFormState extends LoginState {
   final String? emailError;
   final String? passwordError;
   final bool isFormValid;
+  final bool obscurePassword;
 
   const LoginFormState({
     this.email = '',
@@ -41,6 +42,7 @@ class LoginFormState extends LoginState {
     this.emailError,
     this.passwordError,
     this.isFormValid = false,
+    this.obscurePassword = true,
   });
 
   LoginFormState copyWith({
@@ -49,6 +51,7 @@ class LoginFormState extends LoginState {
     String? emailError,
     String? passwordError,
     bool? isFormValid,
+    bool? obscurePassword,
   }) {
     return LoginFormState(
       email: email ?? this.email,
@@ -56,15 +59,17 @@ class LoginFormState extends LoginState {
       emailError: emailError ?? this.emailError,
       passwordError: passwordError ?? this.passwordError,
       isFormValid: isFormValid ?? this.isFormValid,
+      obscurePassword: obscurePassword ?? this.obscurePassword,
     );
   }
 
   @override
   List<Object?> get props => [
-    email,
-    password,
-    emailError,
-    passwordError,
-    isFormValid,
-  ];
+        email,
+        password,
+        emailError,
+        passwordError,
+        isFormValid,
+        obscurePassword,
+      ];
 }

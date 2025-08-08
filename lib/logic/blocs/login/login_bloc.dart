@@ -10,6 +10,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginPasswordChanged>(_onPasswordChanged);
     on<LoginSubmitted>(_onSubmitted);
     on<LoginReset>(_onReset);
+    on<LoginPasswordVisibilityToggled>(_onPasswordVisibilityToggled);
   }
 
   void _onEmailChanged(LoginEmailChanged event, Emitter<LoginState> emit) {
@@ -78,6 +79,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         return;
       }
 
+      // Keep a snapshot to restore after failure
+      final formSnapshot = currentState;
+
       // Emit loading state
       emit(const LoginLoading());
 
@@ -86,20 +90,36 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         await Future.delayed(const Duration(seconds: 2));
 
         // Mock login logic - you can replace this with actual authentication
-        if (currentState.email == 'test@example.com' &&
-            currentState.password == 'password123') {
+        if (formSnapshot.email == 'test@example.com' &&
+            formSnapshot.password == 'password123') {
           emit(const LoginSuccess());
         } else {
           emit(const LoginFailure('Invalid email or password'));
+          // Restore form for continued editing
+          emit(formSnapshot);
         }
       } catch (e) {
         emit(LoginFailure('An error occurred: ${e.toString()}'));
+        // Restore form for continued editing
+        emit(formSnapshot);
       }
     }
   }
 
   void _onReset(LoginReset event, Emitter<LoginState> emit) {
     emit(const LoginFormState());
+  }
+
+  void _onPasswordVisibilityToggled(
+    LoginPasswordVisibilityToggled event,
+    Emitter<LoginState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is LoginFormState) {
+      emit(currentState.copyWith(
+        obscurePassword: !currentState.obscurePassword,
+      ));
+    }
   }
 
   String? _validateEmail(String email) {
