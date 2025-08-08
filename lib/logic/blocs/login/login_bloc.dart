@@ -91,9 +91,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(const LoginSuccess());
         } else {
           emit(const LoginFailure('Invalid email or password'));
+          // Revert back to form state to allow user to correct inputs
+          emit(currentState.copyWith(isFormValid: false));
         }
       } catch (e) {
         emit(LoginFailure('An error occurred: ${e.toString()}'));
+        // Ensure the form becomes interactive again after an error
+        emit(currentState.copyWith(isFormValid: false));
       }
     }
   }
