@@ -15,7 +15,18 @@ class LoginButton extends StatelessWidget {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
         final isLoading = state is LoginLoading;
-        final isFormValid = state is LoginFormState && state.isFormValid;
+        
+        // Get form state from current state or preserved state
+        LoginFormState? formState;
+        if (state is LoginFormState) {
+          formState = state;
+        } else if (state is LoginFailure && state.formState != null) {
+          formState = state.formState;
+        } else if (state is LoginLoading && state.formState != null) {
+          formState = state.formState;
+        }
+        
+        final isFormValid = formState?.isFormValid ?? false;
 
         return Container(
           width: double.infinity,

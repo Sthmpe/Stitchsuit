@@ -12,7 +12,12 @@ class LoginInitial extends LoginState {
 }
 
 class LoginLoading extends LoginState {
-  const LoginLoading();
+  final LoginFormState? formState;
+  
+  const LoginLoading({this.formState});
+  
+  @override
+  List<Object?> get props => [formState];
 }
 
 class LoginSuccess extends LoginState {
@@ -21,11 +26,12 @@ class LoginSuccess extends LoginState {
 
 class LoginFailure extends LoginState {
   final String errorMessage;
+  final LoginFormState? formState;
 
-  const LoginFailure(this.errorMessage);
+  const LoginFailure(this.errorMessage, {this.formState});
 
   @override
-  List<Object?> get props => [errorMessage];
+  List<Object?> get props => [errorMessage, formState];
 }
 
 class LoginFormState extends LoginState {
@@ -53,8 +59,8 @@ class LoginFormState extends LoginState {
     return LoginFormState(
       email: email ?? this.email,
       password: password ?? this.password,
-      emailError: emailError ?? this.emailError,
-      passwordError: passwordError ?? this.passwordError,
+      emailError: emailError,
+      passwordError: passwordError,
       isFormValid: isFormValid ?? this.isFormValid,
     );
   }

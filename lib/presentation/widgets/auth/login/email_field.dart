@@ -7,8 +7,28 @@ import '../../../../logic/blocs/login/login_bloc.dart';
 import '../../../../logic/blocs/login/login_event.dart';
 import '../../../../logic/blocs/login/login_state.dart';
 
-class EmailField extends StatelessWidget {
+class EmailField extends StatefulWidget {
   const EmailField({super.key});
+
+  @override
+  State<EmailField> createState() => _EmailFieldState();
+}
+
+class _EmailFieldState extends State<EmailField> {
+  late TextEditingController _controller;
+  String _lastEmail = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +37,22 @@ class EmailField extends StatelessWidget {
         String email = '';
         String? emailError;
         
+        // Get form state from current state or preserved state
         if (state is LoginFormState) {
           email = state.email;
           emailError = state.emailError;
+        } else if (state is LoginFailure && state.formState != null) {
+          email = state.formState!.email;
+          emailError = state.formState!.emailError;
+        } else if (state is LoginLoading && state.formState != null) {
+          email = state.formState!.email;
+          emailError = state.formState!.emailError;
+        }
+
+        // Update controller if email changed from state
+        if (email != _lastEmail) {
+          _controller.text = email;
+          _lastEmail = email;
         }
 
         return Column(
@@ -48,7 +81,7 @@ class EmailField extends StatelessWidget {
                 ],
               ),
               child: TextFormField(
-                initialValue: email,
+                controller: _controller,
                 onChanged: (value) {
                   context.read<LoginBloc>().add(LoginEmailChanged(value));
                 },

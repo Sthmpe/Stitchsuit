@@ -14,23 +14,31 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   void _onEmailChanged(LoginEmailChanged event, Emitter<LoginState> emit) {
     final currentState = state;
+    LoginFormState formState;
+    
     if (currentState is LoginFormState) {
-      final emailError = _validateEmail(event.email);
-      final isFormValid = _isFormValid(
-        event.email,
-        currentState.password,
-        emailError,
-        currentState.passwordError,
-      );
-
-      emit(
-        currentState.copyWith(
-          email: event.email,
-          emailError: emailError,
-          isFormValid: isFormValid,
-        ),
-      );
+      formState = currentState;
+    } else if (currentState is LoginFailure && currentState.formState != null) {
+      formState = currentState.formState!;
+    } else {
+      formState = const LoginFormState();
     }
+    
+    final emailError = _validateEmail(event.email);
+    final isFormValid = _isFormValid(
+      event.email,
+      formState.password,
+      emailError,
+      formState.passwordError,
+    );
+
+    emit(
+      formState.copyWith(
+        email: event.email,
+        emailError: emailError,
+        isFormValid: isFormValid,
+      ),
+    );
   }
 
   void _onPasswordChanged(
@@ -38,23 +46,31 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) {
     final currentState = state;
+    LoginFormState formState;
+    
     if (currentState is LoginFormState) {
-      final passwordError = _validatePassword(event.password);
-      final isFormValid = _isFormValid(
-        currentState.email,
-        event.password,
-        currentState.emailError,
-        passwordError,
-      );
-
-      emit(
-        currentState.copyWith(
-          password: event.password,
-          passwordError: passwordError,
-          isFormValid: isFormValid,
-        ),
-      );
+      formState = currentState;
+    } else if (currentState is LoginFailure && currentState.formState != null) {
+      formState = currentState.formState!;
+    } else {
+      formState = const LoginFormState();
     }
+    
+    final passwordError = _validatePassword(event.password);
+    final isFormValid = _isFormValid(
+      formState.email,
+      event.password,
+      formState.emailError,
+      passwordError,
+    );
+
+    emit(
+      formState.copyWith(
+        password: event.password,
+        passwordError: passwordError,
+        isFormValid: isFormValid,
+      ),
+    );
   }
 
   Future<void> _onSubmitted(
@@ -62,39 +78,47 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     final currentState = state;
+    LoginFormState formState;
+    
     if (currentState is LoginFormState) {
-      // Validate form before proceeding
-      final emailError = _validateEmail(currentState.email);
-      final passwordError = _validatePassword(currentState.password);
+      formState = currentState;
+    } else if (currentState is LoginFailure && currentState.formState != null) {
+      formState = currentState.formState!;
+    } else {
+      return; // Can't submit without form state
+    }
+    
+    // Validate form before proceeding
+    final emailError = _validateEmail(formState.email);
+    final passwordError = _validatePassword(formState.password);
 
-      if (emailError != null || passwordError != null) {
-        emit(
-          currentState.copyWith(
-            emailError: emailError,
-            passwordError: passwordError,
-            isFormValid: false,
-          ),
-        );
-        return;
+    if (emailError != null || passwordError != null) {
+      emit(
+        formState.copyWith(
+          emailError: emailError,
+          passwordError: passwordError,
+          isFormValid: false,
+        ),
+      );
+      return;
+    }
+
+    // Emit loading state
+    emit(LoginLoading(formState: formState));
+
+    try {
+      // Simulate API call with delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Mock login logic - you can replace this with actual authentication
+      if (formState.email == 'test@example.com' &&
+          formState.password == 'password123') {
+        emit(const LoginSuccess());
+      } else {
+        emit(LoginFailure('Invalid email or password', formState: formState));
       }
-
-      // Emit loading state
-      emit(const LoginLoading());
-
-      try {
-        // Simulate API call with delay
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Mock login logic - you can replace this with actual authentication
-        if (currentState.email == 'test@example.com' &&
-            currentState.password == 'password123') {
-          emit(const LoginSuccess());
-        } else {
-          emit(const LoginFailure('Invalid email or password'));
-        }
-      } catch (e) {
-        emit(LoginFailure('An error occurred: ${e.toString()}'));
-      }
+    } catch (e) {
+      emit(LoginFailure('An error occurred: ${e.toString()}', formState: formState));
     }
   }
 

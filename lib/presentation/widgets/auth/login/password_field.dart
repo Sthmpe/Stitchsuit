@@ -16,6 +16,20 @@ class PasswordField extends StatefulWidget {
 
 class _PasswordFieldState extends State<PasswordField> {
   bool _obscurePassword = true;
+  late TextEditingController _controller;
+  String _lastPassword = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +38,22 @@ class _PasswordFieldState extends State<PasswordField> {
         String password = '';
         String? passwordError;
         
+        // Get form state from current state or preserved state
         if (state is LoginFormState) {
           password = state.password;
           passwordError = state.passwordError;
+        } else if (state is LoginFailure && state.formState != null) {
+          password = state.formState!.password;
+          passwordError = state.formState!.passwordError;
+        } else if (state is LoginLoading && state.formState != null) {
+          password = state.formState!.password;
+          passwordError = state.formState!.passwordError;
+        }
+
+        // Update controller if password changed from state
+        if (password != _lastPassword) {
+          _controller.text = password;
+          _lastPassword = password;
         }
 
         return Column(
@@ -55,7 +82,7 @@ class _PasswordFieldState extends State<PasswordField> {
                 ],
               ),
               child: TextFormField(
-                initialValue: password,
+                controller: _controller,
                 onChanged: (value) {
                   context.read<LoginBloc>().add(LoginPasswordChanged(value));
                 },
