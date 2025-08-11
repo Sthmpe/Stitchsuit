@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../logic/blocs/login/login_bloc.dart';
 import '../../../logic/blocs/login/login_state.dart';
-import '../../screens/home/homepage.dart';
+import '../../screens/navigation/main_navigation_screen.dart';
 import '../../widgets/auth/login/logo_section.dart';
 import '../../widgets/auth/login/welcome_text.dart';
 import '../../widgets/auth/login/email_field.dart';
@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
       child: BlocListener<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoginSuccess) {
-            Get.offAll(HomePage());
+            Get.offAll(() => const MainNavigationScreen());
           } else if (state is LoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
