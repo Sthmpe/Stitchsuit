@@ -8,26 +8,23 @@ import '../../../../logic/blocs/login/login_event.dart';
 import '../../../../logic/blocs/login/login_state.dart';
 
 class LoginButton extends StatelessWidget {
-  const LoginButton({super.key});
+  final GlobalKey<FormState> formKey;
+
+  const LoginButton({super.key, required this.formKey});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
-      buildWhen: (previous, current) {
-        if (previous is LoginFormState && current is LoginFormState) {
-          return previous.isFormValid != current.isFormValid;
-        }
-        return previous.runtimeType != current.runtimeType;
-      },
       builder: (context, state) {
         final isLoading = state is LoginLoading;
-        final isFormValid = state is LoginFormState && state.isFormValid;
 
         return Container(
           width: double.infinity,
           height: 56.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFA54600),
+            color: isLoading
+                ? const Color(0xFFA54600).withOpacity(0.5)
+                : const Color(0xFFA54600),
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
@@ -41,10 +38,12 @@ class LoginButton extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(16.r),
-              onTap: isLoading || !isFormValid
+              onTap: isLoading
                   ? null
                   : () {
-                      context.read<LoginBloc>().add(const LoginSubmitted());
+                      if (formKey.currentState!.validate()) {
+                        context.read<LoginBloc>().add(const LoginSubmitted());
+                      }
                     },
               child: Center(
                 child: isLoading

@@ -40,33 +40,61 @@ class LoginScreen extends StatelessWidget {
             );
           }
         },
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF8F9FA),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                children: [
-                  SizedBox(height: 60.h),
-                  const LogoSection(),
-                  SizedBox(height: 0.h),
-                  const WelcomeText(),
-                  SizedBox(height: 40.h),
-                  const EmailField(),
-                  SizedBox(height: 20.h),
-                  const PasswordField(),
-                  const ForgotPasswordLink(),
-                  SizedBox(height: 24.h),
-                  const LoginButton(),
-                  SizedBox(height: 32.h),
-                  const SocialLoginSeparator(),
-                  SizedBox(height: 24.h),
-                  const SocialLoginButtons(),
-                  SizedBox(height: 40.h),
-                  const SignUpLink(),
-                  SizedBox(height: 40.h),
-                ],
-              ),
+        child: const LoginForm(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                SizedBox(height: 60.h),
+                const LogoSection(),
+                SizedBox(height: 0.h),
+                const WelcomeText(),
+                SizedBox(height: 40.h),
+                EmailField(emailController: _emailController),
+                SizedBox(height: 20.h),
+                PasswordField(passwordController: _passwordController),
+                const ForgotPasswordLink(),
+                SizedBox(height: 24.h),
+                LoginButton(formKey: _formKey),
+                SizedBox(height: 32.h),
+                const SocialLoginSeparator(),
+                SizedBox(height: 24.h),
+                const SocialLoginButtons(),
+                SizedBox(height: 40.h),
+                const SignUpLink(),
+                SizedBox(height: 40.h),
+              ],
             ),
           ),
         ),

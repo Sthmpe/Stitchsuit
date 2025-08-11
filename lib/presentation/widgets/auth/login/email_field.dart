@@ -8,27 +8,14 @@ import '../../../../logic/blocs/login/login_event.dart';
 import '../../../../logic/blocs/login/login_state.dart';
 
 class EmailField extends StatelessWidget {
-  const EmailField({super.key});
+  final TextEditingController emailController;
+
+  const EmailField({super.key, required this.emailController});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
-      buildWhen: (previous, current) {
-        if (previous is LoginFormState && current is LoginFormState) {
-          return previous.email != current.email ||
-              previous.emailError != current.emailError;
-        }
-        return previous.runtimeType != current.runtimeType;
-      },
       builder: (context, state) {
-        String email = '';
-        String? emailError;
-
-        if (state is LoginFormState) {
-          email = state.email;
-          emailError = state.emailError;
-        }
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -55,11 +42,22 @@ class EmailField extends StatelessWidget {
                 ],
               ),
               child: TextFormField(
-                initialValue: email,
+                controller: emailController,
                 onChanged: (value) {
                   context.read<LoginBloc>().add(LoginEmailChanged(value));
                 },
                 keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email is required';
+                  }
+                  if (!RegExp(
+                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                  ).hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
                 style: GoogleFonts.nunitoSans(
                   fontSize: 16.sp,
                   color: const Color(0xFF1A1A1A),
@@ -83,17 +81,6 @@ class EmailField extends StatelessWidget {
                 ),
               ),
             ),
-            if (emailError != null) ...[
-              SizedBox(height: 8.h),
-              AutoSizeText(
-                emailError,
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 12.sp,
-                  color: Colors.red,
-                ),
-                maxLines: 1,
-              ),
-            ],
           ],
         );
       },

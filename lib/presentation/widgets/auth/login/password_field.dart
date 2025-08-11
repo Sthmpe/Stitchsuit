@@ -8,27 +8,16 @@ import '../../../../logic/blocs/login/login_event.dart';
 import '../../../../logic/blocs/login/login_state.dart';
 
 class PasswordField extends StatelessWidget {
-  const PasswordField({super.key});
+  final TextEditingController passwordController;
+
+  const PasswordField({super.key, required this.passwordController});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
-      buildWhen: (previous, current) {
-        if (previous is LoginFormState && current is LoginFormState) {
-          return previous.password != current.password ||
-              previous.passwordError != current.passwordError ||
-              previous.obscurePassword != current.obscurePassword;
-        }
-        return previous.runtimeType != current.runtimeType;
-      },
       builder: (context, state) {
-        String password = '';
-        String? passwordError;
         bool obscure = true;
-
         if (state is LoginFormState) {
-          password = state.password;
-          passwordError = state.passwordError;
           obscure = state.obscurePassword;
         }
 
@@ -58,11 +47,20 @@ class PasswordField extends StatelessWidget {
                 ],
               ),
               child: TextFormField(
-                initialValue: password,
+                controller: passwordController,
                 onChanged: (value) {
                   context.read<LoginBloc>().add(LoginPasswordChanged(value));
                 },
                 obscureText: obscure,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (value.length < 6) {
+                    return 'Password must be at least 6 characters';
+                  }
+                  return null;
+                },
                 style: GoogleFonts.nunitoSans(
                   fontSize: 16.sp,
                   color: const Color(0xFF1A1A1A),
@@ -98,17 +96,6 @@ class PasswordField extends StatelessWidget {
                 ),
               ),
             ),
-            if (passwordError != null) ...[
-              SizedBox(height: 8.h),
-              AutoSizeText(
-                passwordError,
-                style: GoogleFonts.nunitoSans(
-                  fontSize: 12.sp,
-                  color: Colors.red,
-                ),
-                maxLines: 1,
-              ),
-            ],
           ],
         );
       },
