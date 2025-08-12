@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="100%" height="100" fill="#f0f0f0"/>
+  <rect x="128" y="128" width="768" height="768" fill="none" stroke="#3c3c3c" stroke-width="8"/>
+  <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" fill="#141414">Generated placeholder</text>
+</svg>
