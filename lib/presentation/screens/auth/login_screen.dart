@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
 import '../../../logic/blocs/login/login_bloc.dart';
 import '../../../logic/blocs/login/login_state.dart';
-import '../../screens/home/homepage.dart';
+import '../navigation/navigation_root.dart';
+
 import '../../widgets/auth/login/logo_section.dart';
 import '../../widgets/auth/login/welcome_text.dart';
 import '../../widgets/auth/login/email_field.dart';
@@ -25,7 +27,7 @@ class LoginScreen extends StatelessWidget {
       child: BlocListener<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state is LoginSuccess) {
-            Get.offAll(HomePage());
+            Get.offAll(const NavigationRoot());
           } else if (state is LoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -40,20 +42,20 @@ class LoginScreen extends StatelessWidget {
             );
           }
         },
-        child: const LoginForm(),
+        child: const _LoginForm(), // <-- stateful form owns controllers & formKey
       ),
     );
   }
 }
 
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+class _LoginForm extends StatefulWidget {
+  const _LoginForm(/*{super.key}*/);
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  State<_LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _LoginFormState extends State<_LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -81,13 +83,18 @@ class _LoginFormState extends State<LoginForm> {
                 SizedBox(height: 0.h),
                 const WelcomeText(),
                 SizedBox(height: 40.h),
+
+                // pass the required params
                 EmailField(emailController: _emailController),
                 SizedBox(height: 20.h),
                 PasswordField(passwordController: _passwordController),
                 const ForgotPasswordLink(),
                 SizedBox(height: 24.h),
+
+                // pass the required formKey
                 LoginButton(formKey: _formKey),
                 SizedBox(height: 32.h),
+
                 const SocialLoginSeparator(),
                 SizedBox(height: 24.h),
                 const SocialLoginButtons(),
